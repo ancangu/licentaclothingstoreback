@@ -64,6 +64,7 @@ const getUserProfile = async(req,res,next) =>{
     try{
         let token = req.headers['authorization'].slice(7);
         let foundUser = await userServices.getUserByToken(token);
+        console.log(foundUser);
         let foundProfile = await profileServices.getUserProfile(foundUser.userid);
         if(!foundProfile.districtid){
             res.status(400).end();
@@ -79,6 +80,5 @@ const getUserProfile = async(req,res,next) =>{
         console.log(err);
     }
 }
-
 
 export default {getDistricts,getCities,addUserProfile,updateUserProfile,getUserProfile}

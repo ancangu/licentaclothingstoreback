@@ -19,6 +19,17 @@ const getUserByEmail = async(email) =>{
     return user;
 }
 
+const updatePassword = async(email,password)=>{
+    const user = await prisma.users.update({
+        data:{
+            password:password
+        },
+        where:{
+            email
+        }
+    })
+    return user;
+}
 const addUser = async(email,password)=>{
     const user = await prisma.users.create({
         data:{
@@ -41,4 +52,4 @@ const updateUserToken = async(email,token)=>{
 }
 
 
-export default {getUserByEmail,addUser,updateUserToken,getUserByToken}
+export default {getUserByEmail,addUser,updateUserToken,getUserByToken,updatePassword}

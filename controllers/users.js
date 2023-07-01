@@ -23,6 +23,65 @@ const createUser = async(req,res,next)=>{
     }
 }
 
+
+const updatePassword = async(req,res,next)=>{
+    try{
+        let foundUser = await userServices.getUserByEmail(req.body.email);
+        let password = req.body.password;
+        await userServices.updatePassword(foundUser.email,cryptr.encrypt(password));
+        res.status(200).end();
+    }
+    catch(err){
+        res.status(400).end();
+        console.log(err);
+    }
+}
+
+
+const sendEmailWithCode = async(req,res,next)=>{
+    try{
+        let to = req.params.to;
+        let code = req.params.code;
+        console.log(code);
+        let foundUser = await userServices.getUserByEmail(req.params.to);
+        console.log(foundUser);
+        if(foundUser==null){
+            res.status(400).end();
+            return;
+        }
+        var transporter = nodemailer.createTransport({
+              service: 'gmail',
+              auth: {
+                user: 'EuphoriaClothingSite@gmail.com',
+                pass: 'rvucaohbwhozpvfd'
+              }
+            });
+
+            var mailOptions = {
+              from: 'EuphoriaClothingSite@gmail.com',
+              to: to,
+              subject: 'Password reset',
+              text: `Hello there! \n Your password reset code is: ${code}`
+            };
+
+            transporter.sendMail(mailOptions, function(error, info){
+              if (error) {
+                console.log(error);
+              } else {
+                console.log('Email sent: ' + info.response);
+              }
+            });
+            res.status(200).end();
+
+    }catch(err){
+        res.status(400).end();
+        console.log(err);
+    }
+    
+}
+
+
+
 const getUser = async(req,res,next)=>{
     try{
         let foundUser = await userServices.getUserByEmail(req.body.email);
@@ -78,4 +137,18 @@ const sendEmail = async(req,res,next)=>{
     }
 }
 
-export default {createUser,getUser,sendEmail}
+const getUserId = async(req,res,next)=>{
+    try{
+        let token = req.headers['authorization'].slice(7);
+        let user = await userServices.getUserByToken(token);
+        console.log(user);
+        if(user)
+            res.status(200).json(user);
+        else
+            res.status(400).end();
+    }catch(err){
+        console.log(err);
+    }
+}
+
+export default {createUser,getUser,sendEmail,getUserId,updatePassword,sendEmailWithCode}
